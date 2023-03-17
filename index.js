@@ -1,16 +1,34 @@
-const express = require("express")
+const express = require("express");
+const mongoose = require("mongoose");
 const tasks = require("./routes/tasks");
-const app = express()
+require("dotenv").config();
 
-const PORT = 3000
+const app = express();
 
-app.use(express.json())
+const PORT = 3000;
 
+app.use(express.json());
 
+app.use("/api/v1/tasks", tasks);
 
-app.use("/api/v1/tasks",tasks)
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  console.log(error.properties);
+  res.status(status).json({ message });
+});
 
-
-app.listen(PORT,()=>{
-    console.log("Server active at PORT:",PORT)
-})
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+  })
+  .then(
+    app.listen(PORT, () => {
+      console.log("Listening on PORT", PORT);
+    })
+  )
+  .catch((err) => console.log(err));
