@@ -1,23 +1,21 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const notFound = require("./middleware/notFound");
+const errorHandler = require("./middleware/errorHandler");
 const tasks = require("./routes/tasks");
 require("dotenv").config();
 
 const app = express();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+app.use(express.static("./public"));
 app.use(express.json());
 
 app.use("/api/v1/tasks", tasks);
 
-app.use((error, req, res, next) => {
-  console.log(error);
-  const status = error.statusCode || 500;
-  const message = error.message;
-  console.log(error.properties);
-  res.status(status).json({ message });
-});
+app.use(errorHandler);
+app.use(notFound);
 
 mongoose
   .connect(process.env.MONGO_URL, {

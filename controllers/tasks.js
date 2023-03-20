@@ -4,7 +4,6 @@ const getAllTasks = async (req, res, next) => {
   try {
     const posts = await Task.find();
     const data = { status: 200, posts };
-    const error = new Error("Data missing!");
     return res.status(200).json(data);
   } catch (err) {
     next(err);
@@ -43,14 +42,13 @@ const updateTask = async (req, res, next) => {
   try {
     const id = req.params.id;
     const { name } = req.body;
-    const task = await Task.findById(id);
+    // const task = await Task.findById(id);
+    await Task.findByIdAndUpdate(id, { name });
     if (!task) {
       const error = new Error("No task found for the given id!");
       error.statusCode = 404;
       throw error;
     }
-    task.name = name;
-    await task.save();
     const data = { status: 200, task };
     res.json(data);
   } catch (err) {
@@ -59,15 +57,19 @@ const updateTask = async (req, res, next) => {
 };
 
 const deleteTask = async (req, res, next) => {
-  const id = req.params.id;
-  const task = await Task.findById(id);
-  if (!task) {
-    const error = new Error("No task found with given id!");
-    error.statusCode = 404;
-    throw error;
+  try {
+    const id = req.params.id;
+    const task = await Task.findById(id);
+    if (!task) {
+      const error = new Error("No task found with given id!");
+      error.statusCode = 404;
+      throw error;
+    }
+    await Task.findByIdAndRemove(id);
+    res.json({ status: 200, message: "Task deleted" });
+  } catch (err) {
+    next(err);
   }
-  await Task.findByIdAndRemove(id);
-  res.json({ status: 200, message: "Task deleted" });
 };
 
 module.exports = {
