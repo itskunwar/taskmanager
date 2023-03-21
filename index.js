@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const notFound = require("./middleware/notFound");
-const errorHandler = require("./middleware/errorHandler");
+const notFoundMiddleware = require("./middleware/notFound");
+const errorHandlerMiddleware = require("./middleware/errorHandler");
 const tasks = require("./routes/tasks");
 require("dotenv").config();
 
@@ -14,8 +14,8 @@ app.use(express.json());
 
 app.use("/api/v1/tasks", tasks);
 
-app.use(errorHandler);
-app.use(notFound);
+app.use(errorHandlerMiddleware);
+app.use(notFoundMiddleware);
 
 mongoose
   .connect(process.env.MONGO_URL, {
